@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+	
+	<!-- Estructura de la Vista en Odoo
+	<record model="ir.ui.view" id="">
+        <field name="name"></field>
+        <field name="model"></field>
+        <field name="type"></field>
+        <field name="arch" type="xml">
+            
+        </field>
+    </record> -->
+
+	<!-- <record model="ir.ui.view" id="warehouse_inhetir_mail">
+        <field name="name">stock.warehouse.academy</field>
+        <field name="model">stock.warehouse</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <sheet position="after">
+            	<div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </sheet>
+        </field>
+    </record> -->
+
+	<!-- VISTAS PARA UN ASISTENTE -->
+	    <record id="wizard_student_invoice" model="ir.ui.view">
+	    <field name="name">make.student.invoice.form</field>
+	    <field name="model">make.student.invoice</field>
+	    <field name="type">form</field>
+	    <field name="arch" type="xml">
+	        <form string="Asistente para Generacion de Factura">
+	        	<header>
+	        	</header>
+	        	<sheet>
+	        		<separator string="Introduce el Diario para la Factura"/>
+	        		<field name="journal_id" required="1"/>
+	        	</sheet>
+	        	<footer>
+	        		<div align="center">
+	        			<button name="make_invoice" string="Generar" type="object" icon="gtk-execute" />
+	        			<button special="cancel" string="Cerrar" type="object" icon="gtk-cancel"/>
+	        		</div>
+	        	</footer>
+	            
+	           </form>
+	        </field>
+	    </record>
+
+
+        <!--============================================ACCION========================================-->
+        <act_window
+            name="Generacion de Facturacion"
+            res_model="make.student.invoice"
+            src_model="academy.student"
+            view_mode="form" target="new"
+            key2="client_action_multi"
+            id="student_invoice_act"/>
+
+	<!-- CREAR REGISTRO DESDE XML -->
+
+	<record model="product.category" id="category_student">
+		<field name="name">Facturacion Colegiatura</field>
+
+	</record>
+
+	<!--  HEREDANDO VISTAS EN ODOO -->
+	<record model="ir.ui.view" id="account_move_mail_inherit">
+        <field name="name">account.move.academy</field>
+        <field name="model">account.move</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <sheet position="after">
+            	<div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </sheet>
+        </field>
+    </record>
+
+	<record model="ir.ui.view" id="herencia_res_partner_academy">
+        <field name="name">res.partner.academy</field>
+        <field name="model">res.partner</field>
+        <field name="type">form</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="category_id" position="after" >
+            	<field name="student_id" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+	<!-- VISTAS PRINCIPALES DE MIS CLASES -->
+
+	<record model="ir.ui.view" id="pivot_student_id">
+        <field name="name">academy.student.pivot</field>
+        <field name="model">academy.student</field>
+        <field name="type">pivot</field>
+        <field name="arch" type="xml">
+            <pivot string="Facturacion por Escuela" >
+            	<field name="create_date" type="row"/>
+                <field name="amount_invoice" type="measure"/>
+                <field name="partner_id" type="row"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="graph_student_id">
+        <field name="name">academy.student.graph</field>
+        <field name="model">academy.student</field>
+        <field name="type">graph</field>
+        <field name="arch" type="xml">
+            <graph string="Facturacion por Escuela" >
+            	<field name="partner_id"/>
+                <field name="amount_invoice" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+	<record model="ir.ui.view" id="tree_student_id">
+        <field name="name">academy.student.tree</field>
+        <field name="model">academy.student</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="Listado de Estudiantes">
+            	<field name="name" />
+            	<field name="last_name" />
+            	<field name="create_date" />
+            	<field name="amount_invoice" />
+            	<field name="state" />
+
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="academy_studen_form_id">
+        <field name="name">academy.student.form</field>
+        <field name="model">academy.student</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Formulario de Registro" >
+            	<header>
+            		<button string="Confirmar" name="confirm" type="object"  icon="gtk-ok" states="draft" />
+            		<button string="Cancelar" name="cancel" type="object"  icon="gtk-cancel" states="draft,progress" />
+            		<button string="Egresar" name="done" type="object"  icon="gtk-execute" states="progress" />
+
+            		<button string="Borrador" name="draft" type="object"  icon="gtk-ok" states="cancel" />
+            		<button name="%(student_invoice_act)d" string="Generar Factura"
+                        type="action" class="btn-primary" icon="gtk-execute"/>
+
+                    <button string="Imprimir Reporte" name="print_report" type="object"  icon="gtk-execute"/>
+            		<!-- 
+						Function,
+						Action,
+						Workflow
+            		-->
+            		<field name="state" widget="statusbar"/>
+            	</header>
+            	<sheet>
+            		
+            			<field name="photo" widget="image" class="oe_avatar" options="{&quot;preview_image&quot;: &quot;photo&quot;, &quot;size&quot;: [90, 90]}" />
+            		<group colspan="4">
+            			<group >
+            				<field name="id"/>
+            				<field name="name" attrs="{'readonly':[('state','!=','draft')]}"/>
+            				<field name="last_name" required="1" attrs="{'readonly':[('state','!=','draft')],'invisible':[('name','=',False)]}"/>
+            				<field name="curp" placeholder="PODG890625HVZNMR02" required="1"/>
+            				<field name="age" attrs="{'readonly':[('state','!=','draft')]}"/>
+
+            				<!-- required, readonly, invisible -->
+            			</group>
+            			<group>
+            				<field name="active"/>
+            				<field name="create_date"/>
+            				<field name="partner_id" domain="[('company_type','=','is_school')]" attrs="{'readonly':[('state','!=','draft')]}"/>
+            				<field name="country" attrs="{'readonly':[('state','!=','draft')]}" />
+            				<field name="grado_id" required="1" attrs="{'readonly':[('state','!=','draft')]}" />
+            			</group>
+            		</group>
+            		<notebook>
+            			<page string="Calificaciones">
+            				<field name="calificaciones_ids" >
+            					<tree string="Calificaciones" editable="bottom">
+            						<field name="name" required="1"/>
+            						<field name="calificacion" required="1" />
+            					</tree>
+            				</field>
+            				<group class="oe_subtotal_footer oe_right" colspan="2" name="grupo_promedio">
+				                <field name="promedio" />
+				            </group>
+            			</page>
+            			<page string="Facturas" >
+            				<field name="invoice_ids" />
+            				<group class="oe_subtotal_footer oe_right" colspan="2" name="grupo_amount">
+				                <field name="amount_invoice" />
+				            </group>
+            			</page>
+            			<page string="Comentarios">
+            				<field name="notes" />
+            			</page>
+            		</notebook>
+            	</sheet>
+            	 <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+	<record model="ir.actions.act_window" id="act_student_academy">
+        <field name="name">Registro de Estudiantes</field>
+        <field name="res_model">academy.student</field>
+        <field name="view_mode">tree,form,pivot,graph</field>
+    </record>
+
+	<record model="ir.actions.act_window" id="act_student_calificaciones">
+        <field name="name">Calificaciones</field>
+        <field name="res_model">academy.calificacion</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+	<record model="ir.ui.view" id="tree_grados_id">
+        <field name="name">academy.grado.tree</field>
+        <field name="model">academy.grado</field>
+        <field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="Grado">
+            	<field name="complete_name" />
+            </tree>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="academy_grado">
+        <field name="name">academy.grado.form</field>
+        <field name="model">academy.grado</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Grado" >
+            	<header>
+            	</header>
+            	<sheet>
+            		<group>
+            			<field name="name" />
+            			<field name="grupo" />
+            		</group>
+            		<notebook>
+            			<page>
+            				<field name="materia_ids" >
+            					<tree string="Materias" editable="bottom">
+            						<field name="materia_id" />
+            					</tree>
+            				</field>
+            			</page>
+            		</notebook>
+            	</sheet>
+
+            </form>
+        </field>
+    </record>
+
+	<record model="ir.actions.act_window" id="act_grados">
+        <field name="name">Grados</field>
+        <field name="res_model">academy.grado</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+	<!-- REGISTRO DE MENUS -->
+    <menuitem id="id_principal_academy" name="Odoo Academy"/><!-- MENU PRINCIPAL O PADRE -->
+
+    <menuitem id="id_menu_student" parent="id_principal_academy" name="Registros" sequence="0"/><!--SUBMENU -->
+
+    <menuitem id="id_menu_student_act" parent="id_menu_student" name="Estudiantes"  action="act_student_academy" sequence="0"/><!-- MENU CON ACCIONES DE VENTANA -->
+	
+    <menuitem id="id_menu_config" parent="id_principal_academy" name="Configuracion" sequence="1"/>
+	
+	<menuitem id="id_menu_calificacion_act" parent="id_menu_config"  action="act_student_calificaciones" sequence="0"/>
+
+	<menuitem id="id_menu_grados_act" parent="id_menu_config"  action="act_grados" sequence="1"/>
+
+	</data>
+</openerp>
